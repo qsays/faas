@@ -17,6 +17,7 @@ type MetricOptions struct {
 	GatewayFunctionsHistogram *prometheus.HistogramVec
 	ServiceReplicasGauge      *prometheus.GaugeVec
 	ServiceMetrics            *ServiceMetricOptions
+	StartedCounter            *prometheus.CounterVec
 }
 
 // ServiceMetricOptions provides RED metrics
@@ -81,6 +82,15 @@ func BuildMetricsOptions() MetricOptions {
 		[]string{"method", "path", "status"},
 	)
 
+	startedCounter := prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Subsystem: "function",
+			Name:      "requests_started_total",
+			Help:      "The total number of function HTTP requests started.",
+		},
+		[]string{"function_name"},
+	)
+
 	serviceMetricOptions := &ServiceMetricOptions{
 		Counter:   counter,
 		Histogram: histogram,
@@ -91,6 +101,7 @@ func BuildMetricsOptions() MetricOptions {
 		GatewayFunctionInvocation: gatewayFunctionInvocation,
 		ServiceReplicasGauge:      serviceReplicas,
 		ServiceMetrics:            serviceMetricOptions,
+		StartedCounter:            startedCounter,
 	}
 
 	return metricsOptions
